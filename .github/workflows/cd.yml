@@ -1,0 +1,29 @@
+name: Calculator CD
+
+on:
+  workflow_run:
+    workflows: ["Calculator CI"]
+    types:
+      - completed
+
+jobs:
+  package:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create package
+        run: |
+          mkdir calculator-package
+          cp calculator.py calculator-package/
+          cp test_calculator.py calculator-package/
+          cp -r utils calculator-package/
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-package
+          path: calculator-package
